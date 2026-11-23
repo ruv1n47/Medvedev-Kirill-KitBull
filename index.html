@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Котбуль — 3D-сайт</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Literata:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#141a28;--ink:#f1ead9;--muted:#b3b2bd;--lamp:#f0b44f;--fur:#f08a45;--sky:#8aa0c4;--glass:rgba(20,26,40,.74);--line:rgba(241,234,217,.18);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:70px;scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.7 "Literata",Georgia,serif;cursor:none}
+a,button,iframe{cursor:none}
+#stage{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+main{position:relative;z-index:1}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px}
+.col{max-width:540px}
+section{min-height:100vh;display:flex;align-items:center;padding:90px 0}
+h1,h2,h3{font-family:"Caveat","Comic Sans MS",cursive;line-height:1;margin:0 0 14px}
+h1{font-size:clamp(90px,12vw,170px);text-shadow:0 6px 40px rgba(0,0,0,.6)}
+h2{font-size:64px}h3{font-size:30px;color:var(--lamp)}
+.lead{font-size:22px;margin:0 0 24px}
+nav{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:6;background:linear-gradient(var(--bg),transparent);padding:16px 0}
+nav .wrap{display:flex;justify-content:space-between;align-items:center}
+nav b{font:700 32px "Caveat",cursive}
+nav div{display:flex;gap:28px}
+nav a{color:var(--ink);text-decoration:none;font-size:16px;opacity:.8}nav a:hover{opacity:1;color:var(--lamp)}
+.panel{position:relative;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:22px;padding:30px;overflow:hidden;transition:transform .15s ease-out}
+.panel::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(240,180,79,.16),transparent 70%);pointer-events:none}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:15px;color:var(--muted);background:var(--glass)}
+.pillars{display:grid;gap:16px;margin-top:18px}
+.pillars div{border-left:4px solid var(--fur);padding-left:16px}.pillars p{margin:0;color:var(--muted);font-size:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.step b{font:700 54px "Caveat",cursive;color:var(--fur)}
+.step p,.hero-c p{margin:0;color:var(--muted);font-size:16px}
+.hero-c{min-height:200px}
+.big{font:700 72px "Caveat",cursive;color:var(--lamp);line-height:1}
+.stat span{color:var(--muted);font-size:15px}
+.screen{perspective:1100px}
+.tilt{transform-style:preserve-3d;transition:transform .15s ease-out;border:2px solid var(--line);border-radius:18px;overflow:hidden;background:#000;box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 80px rgba(240,180,79,.2)}
+.ratio{position:relative;aspect-ratio:16/9}.ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.links{display:flex;gap:12px;margin-top:18px}
+.btn{padding:11px 20px;border-radius:999px;border:1px solid var(--lamp);color:var(--ink);text-decoration:none;font-size:16px}
+.btn.main{background:var(--lamp);color:#1b1b22;font-weight:600}.btn:hover{filter:brightness(1.15)}
+.note{font-size:14px;color:var(--muted);margin-top:12px}
+dl{margin:0}dl div{display:flex;gap:18px;padding:10px 0;border-bottom:1px solid var(--line)}dt{flex:0 0 130px;color:var(--muted);font-size:16px}dd{margin:0}
+.strip{position:relative;z-index:1;overflow:hidden;border-block:1px solid var(--line);background:var(--glass);padding:14px 0;white-space:nowrap}
+.strip span{display:inline-block;font:700 34px "Caveat",cursive;color:var(--sky);animation:run 30s linear infinite}
+@keyframes run{to{transform:translateX(-50%)}}
+footer{position:relative;z-index:1;padding:40px;text-align:center;color:var(--muted);font-size:14px}
+#bar{position:fixed;left:0;top:0;height:4px;background:var(--lamp);width:0;z-index:9}
+#orb{position:fixed;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:radial-gradient(circle,#ffe3a0 0,rgba(240,180,79,.55) 40%,transparent 72%);z-index:20;pointer-events:none;mix-blend-mode:screen}
+#orb.big{transform:scale(2.2)}
+.paw{position:fixed;z-index:19;pointer-events:none;font-size:20px;animation:paw 1.8s ease-out forwards}
+@keyframes paw{0%{opacity:.8}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(.7)}}
+.fallback{position:fixed;inset:0;background:radial-gradient(circle at 60% 40%,#2a3550,#141a28 70%)}
+.rv-row{overflow:hidden;padding:10px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.rv-track{display:flex;width:max-content;animation:rv 60s linear infinite}
+.rv-row:hover .rv-track{animation-play-state:paused}
+@keyframes rv{to{transform:translateX(-50%)}}
+.rv-card{flex:0 0 340px;margin-right:18px;background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:16px 20px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.rv-card b{font:700 28px "Caveat",cursive;color:var(--lamp);display:block;line-height:1.1}
+.rv-card p{margin:4px 0 0;font-size:16px;line-height:1.55;white-space:normal}
+.rv-card.mine{border-color:var(--lamp);box-shadow:0 0 34px rgba(240,180,79,.3)}
+.rvform{display:grid;gap:12px;max-width:680px;margin:34px auto 0}
+.rvform input,.rvform textarea{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:inherit;font-size:16px;padding:12px 14px;cursor:text;resize:vertical}
+.rvform input:focus-visible,.rvform textarea:focus-visible,.emo:focus-visible{outline:3px solid var(--lamp);outline-offset:2px}
+.emos{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.emo{font-size:22px;background:none;border:1px solid var(--line);border-radius:999px;width:46px;height:46px;color:var(--ink)}
+.emo[aria-pressed="true"]{border-color:var(--lamp);background:rgba(240,180,79,.2)}
+.rvrow{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.rvform button.btn{font:inherit;font-size:16px;cursor:none}
+#rvmsg{min-height:1.4em;color:var(--lamp);font-size:15px;margin:0}
+@media (prefers-reduced-motion:reduce){.strip span{animation:none}.paw{display:none}.rv-track{animation:none}.rv-row{overflow-x:auto}}
+@media (hover:none){body,a,button,iframe{cursor:auto}#orb{display:none}}
+</style>
+</head>
+<body>
+<div id="bar"></div><div id="orb"></div><div class="fallback"></div>
+<canvas id="stage" aria-hidden="true"></canvas>
+<nav><div class="wrap"><b>KitBull</b><div><a href="#top">Начало</a><a href="#idea">Идея</a><a href="#story">История</a><a href="#heroes">Герои</a><a href="#watch">Смотреть</a><a href="#facts">О фильме</a><a href="#reviews">Отзывы</a></div></div></nav>
+
+<main>
+<section id="top"><div class="wrap"><div class="col">
+  <h1>Котбуль</h1>
+  <p class="lead">Бездомный котёнок и пёс на цепи. Два существа, которые научились бояться раньше, чем доверять.</p>
+  <div class="chips"><span class="chip">Pixar SparkShorts</span><span class="chip">рисованная 2D-анимация</span><span class="chip">2019</span><span class="chip">без слов</span></div>
+  <p class="note">Листайте вниз: котёнок будет подходить к псу, а свет фонаря станет теплее. Водите мышью: герои следят за курсором, светляки летят к нему, а лапки оставляют следы.</p>
+</div></div></section>
+
+<div class="strip" aria-hidden="true"><span>доверие · страх · дружба · дом · шаг навстречу · тепло · свобода · доверие · страх · дружба · дом · шаг навстречу · тепло · свобода · </span></div>
+
+<section id="idea"><div class="wrap"><div class="col panel" data-glow>
+  <h2>Главная мысль</h2>
+  <p>Тот, кого постоянно пугали и обижали, не становится плохим. Он разучился верить. Фильм говорит: доверие можно вернуть, если рядом оказался тот, кто не причинит боли.</p>
+  <div class="pillars">
+    <div><h3>Страх, а не злоба</h3><p>Грозная внешность пса это защита. Его поведение объясняется тем, как с ним обращались.</p></div>
+    <div><h3>Дружба начинается с шага</h3><p>Оба героя боятся. Связь появляется, когда один решается подойти, а другой не бьёт в ответ.</p></div>
+    <div><h3>Дом это тот, кто рядом</h3><p>Свобода без любви одинока, безопасность без любви становится клеткой.</p></div>
+  </div>
+</div></div></section>
+
+<section id="story"><div class="wrap">
+  <h2>История в четырёх шагах</h2>
+  <div class="grid4">
+    <div class="panel step" data-glow><b>1</b><h3>Двор</h3><p>Голодный котёнок живёт на свалке и сторонится всех. Он привык рассчитывать только на себя.</p></div>
+    <div class="panel step" data-glow><b>2</b><h3>Встреча</h3><p>Рядом он замечает огромного пса, которого держат на цепи. Страшно обоим.</p></div>
+    <div class="panel step" data-glow><b>3</b><h3>Сближение</h3><p>Недоверие уступает любопытству. Появляется первая игра и первое тепло.</p></div>
+    <div class="panel step" data-glow><b>4</b><h3>Выбор</h3><p>Дружбе придётся выдержать испытание. Финал лучше посмотреть самому.</p></div>
+  </div>
+</div></section>
+
+<section id="heroes"><div class="wrap">
+  <h2>Герои</h2>
+  <div class="grid2">
+    <div class="panel hero-c" data-glow data-tilt><h3>Котёнок</h3><p>Маленький, независимый и колючий. Прячется от людей, шипит на незнакомое, но при этом очень хочет тепла. Его оранжевый цвет в нашей 3D-сцене выбран за контраст с холодной ночью.</p></div>
+    <div class="panel hero-c" data-glow data-tilt><h3>Пёс</h3><p>Питбуль, привыкший к цепи и страху. Сильный снаружи и беззащитный внутри. Через него фильм разрушает стереотип об «опасных» породах.</p></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap"><div class="grid2">
+  <div class="panel" data-glow><h2>Как это сделано</h2><p>Фильм нарисован вручную в 2D. Для Pixar, где почти всё делают в 3D, это редкость. Он вышел в рамках программы SparkShorts, где сотрудникам студии давали шесть месяцев и небольшой бюджет на собственные истории.</p></div>
+  <div class="grid2" style="gap:18px">
+    <div class="panel stat" data-glow><div class="big" data-n="6">0</div><span>месяцев на короткометражку в SparkShorts</span></div>
+    <div class="panel stat" data-glow><div class="big" data-n="2">0</div><span>героя и ни одного слова</span></div>
+    <div class="panel stat" data-glow><div class="big" data-n="2019">0</div><span>год выхода</span></div>
+    <div class="panel stat" data-glow><div class="big" data-n="8">0</div><span>минут экранного времени</span></div>
+  </div>
+</div></div></section>
+
+<section id="watch"><div class="wrap" style="max-width:980px">
+  <h2>Смотреть</h2>
+  <div class="screen"><div class="tilt" id="tilt"><div class="ratio">
+    <iframe src="https://vkvideo.ru/video_ext.php?oid=-230238587&id=456239202&hash=daf3880a118c5581" title="Котбуль (Kitbull, 2019)" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen loading="lazy"></iframe>
+  </div></div></div>
+  <div class="links">
+    <a class="btn main" href="https://vk.com/video-230238587_456239202" target="_blank" rel="noopener">Открыть видео по ссылке</a>
+    <a class="btn" href="https://yandex.ru/video/preview/9377735501940251711" target="_blank" rel="noopener">Страница в Яндекс.Видео</a>
+  </div>
+  <p class="note">Если плеер не загрузился, нажмите первую кнопку. Официальная версия мультфильма есть на канале Disney•Pixar в YouTube.</p>
+</div></section>
+
+<section id="facts"><div class="wrap"><div class="col panel" data-glow style="max-width:760px">
+  <h2>О фильме</h2>
+  <dl>
+    <div><dt>Студия</dt><dd>Pixar Animation Studios, программа SparkShorts</dd></div>
+    <div><dt>Автор</dt><dd>Росана Салливан, режиссёр и сценарист</dd></div>
+    <div><dt>Продюсер</dt><dd>Кэтрин Хендриксон</dd></div>
+    <div><dt>YouTube</dt><dd>18 февраля 2019 года</dd></div>
+    <div><dt>Disney+</dt><dd>12 ноября 2019 года</dd></div>
+    <div><dt>В кино</dt><dd>9 февраля 2024 года, перед «Что со мной не так?»</dd></div>
+  </dl>
+</div></div></section>
+<section id="reviews" style="display:block;min-height:0">
+  <div class="wrap"><h2>Впечатления зрителей</h2>
+  <p class="note" style="max-width:640px;margin:0 0 14px">Первые отзывы — примеры. Напишите своё впечатление, и оно побежит по строке вместе с остальными.</p></div>
+  <div class="rv-row" id="rv1"></div><div class="rv-row" id="rv2"></div>
+  <div class="wrap"><form class="panel rvform" id="rvform" data-glow autocomplete="off">
+    <h3>Ваше впечатление</h3>
+    <input id="rvname" type="text" maxlength="24" placeholder="Имя (можно не указывать)" aria-label="Имя">
+    <textarea id="rvtext" rows="3" maxlength="220" placeholder="Что вы почувствовали, когда смотрели?" aria-label="Ваше впечатление"></textarea>
+    <div class="rvrow"><div class="emos" role="group" aria-label="Настроение"><button type="button" class="emo" data-e="❤️" aria-pressed="true">❤️</button><button type="button" class="emo" data-e="😢" aria-pressed="false">😢</button><button type="button" class="emo" data-e="🐾" aria-pressed="false">🐾</button><button type="button" class="emo" data-e="🔥" aria-pressed="false">🔥</button></div>
+    <span class="note" id="rvcount" style="margin:0">0 / 220</span></div>
+    <div class="rvrow"><p id="rvmsg" role="status"></p><button type="submit" class="btn main">Отправить</button></div>
+    <p class="note" style="margin:0">Отзыв сохраняется в вашем браузере и виден только вам на этом устройстве.</p>
+  </form></div>
+</section>
+</main>
+<footer>Неофициальная страница-посвящение. «Котбуль» (Kitbull) принадлежит Pixar / Disney.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var still=matchMedia('(prefers-reduced-motion: reduce)').matches,touch=matchMedia('(hover:none)').matches;
+var bar=document.getElementById('bar'),orb=document.getElementById('orb');
+var mxp=innerWidth/2,myp=innerHeight/2,ox=mxp,oy=myp,lx=-999,ly=-999;
+/* курсор-фонарик, лапки, подсветка панелей, наклон карточек */
+addEventListener('pointermove',function(e){
+  mxp=e.clientX;myp=e.clientY;
+  var d=Math.hypot(e.clientX-lx,e.clientY-ly);
+  if(!still&&!touch&&d>80){
+    var p=document.createElement('div');p.className='paw';p.textContent='🐾';
+    var a=Math.atan2(e.clientY-ly,e.clientX-lx);
+    p.style.left=e.clientX+'px';p.style.top=e.clientY+'px';
+    p.style.setProperty('--r',(a*57.3+90)+'deg');p.style.setProperty('--dx',(Math.cos(a)*-20)+'px');p.style.setProperty('--dy',(Math.sin(a)*-20)+'px');
+    document.body.appendChild(p);setTimeout(function(){p.remove()},1800);lx=e.clientX;ly=e.clientY;
+  }
+  var t=e.target.closest&&e.target.closest('[data-glow]');
+  if(t){var r=t.getBoundingClientRect();t.style.setProperty('--mx',(e.clientX-r.left)+'px');t.style.setProperty('--my',(e.clientY-r.top)+'px');
+    if(t.hasAttribute('data-tilt')&&!still){var x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;t.style.transform='perspective(800px) rotateY('+(x*10)+'deg) rotateX('+(-y*10)+'deg)'}}
+},{passive:true});
+document.querySelectorAll('[data-tilt]').forEach(function(t){t.addEventListener('pointerleave',function(){t.style.transform=''})});
+document.addEventListener('pointerover',function(e){orb.classList.toggle('big',!!(e.target.closest&&e.target.closest('a,.btn')))});
+var tl=document.getElementById('tilt');
+if(tl&&!still){var sc0=tl.parentNode;sc0.addEventListener('pointermove',function(e){var r=sc0.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;tl.style.transform='rotateY('+(x*10)+'deg) rotateX('+(-y*8)+'deg)'});sc0.addEventListener('pointerleave',function(){tl.style.transform=''})}
+/* впечатления зрителей */
+(function(){
+var seed=[['Аня','❤️','Смотрела без слов и всё равно всё поняла. Страх, который проходит от одного тёплого взгляда, показан невероятно точно.'],['Максим','🐾','Рисованная анимация у Pixar как глоток воздуха. Каждое движение котёнка живое.'],['Ира','😢','Пёс на цепи — самый сильный образ. После просмотра хочется обнять всех бездомных.'],['Дима','🔥','Восемь минут, а чувства как после полного метра.'],['Лена','❤️','Обязательно досмотрите до конца. Это очень тёплая история.'],['Саша','🐾','Показал детям. После мультфильма они тут же попросили котёнка.'],['Оля','😢','Момент первой игры — мурашки.'],['Кирилл','🔥','Тишина и музыка работают лучше любых диалогов.']];
+var KEY='kitbull_reviews_v1',mine=[];
+try{mine=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){mine=[]}
+if(!Array.isArray(mine))mine=[];
+var rows=[document.getElementById('rv1'),document.getElementById('rv2')];
+function card(r){var c=document.createElement('div');c.className='rv-card'+(r[3]?' mine':'');var h=document.createElement('b');h.textContent=r[1]+' '+(r[0]||'Зритель');var p=document.createElement('p');p.textContent=r[2];c.appendChild(h);c.appendChild(p);return c}
+function render(){
+ var all=mine.map(function(m){return [String(m.n||''),String(m.e||'❤️'),String(m.t||''),1]}).concat(seed.map(function(s){return [s[0],s[1],s[2],0]}));
+ var parts=[[],[]];all.forEach(function(r,i){parts[i%2].push(r)});
+ rows.forEach(function(row,i){row.textContent='';var tr=document.createElement('div');tr.className='rv-track';tr.style.animationDuration=(parts[i].length*11)+'s';if(i===1)tr.style.animationDirection='reverse';
+  for(var k=0;k<2;k++)parts[i].forEach(function(r){tr.appendChild(card(r))});row.appendChild(tr)});
+}
+render();
+var f=document.getElementById('rvform'),nm=document.getElementById('rvname'),tx=document.getElementById('rvtext'),msg=document.getElementById('rvmsg'),cnt=document.getElementById('rvcount'),emo='❤️';
+document.querySelectorAll('.emo').forEach(function(b){b.addEventListener('click',function(){emo=b.dataset.e;document.querySelectorAll('.emo').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')})})});
+tx.addEventListener('input',function(){cnt.textContent=tx.value.length+' / 220'});
+f.addEventListener('submit',function(e){e.preventDefault();
+ var t=tx.value.trim().slice(0,220),n=nm.value.trim().slice(0,24);
+ if(t.length<3){msg.textContent='Напишите хотя бы пару слов.';return}
+ mine.unshift({n:n,e:emo,t:t});mine=mine.slice(0,20);
+ try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(er){}
+ tx.value='';cnt.textContent='0 / 220';msg.textContent='Спасибо! Ваше впечатление уже бежит по строке.';render();
+});
+})();
+/* счётчики */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var n=e.target,to=+n.dataset.n,t0=performance.now();io.unobserve(n);(function s(){var k=Math.min((performance.now()-t0)/1200,1);n.textContent=Math.round(to*k);if(k<1)requestAnimationFrame(s)})()})});
+document.querySelectorAll('[data-n]').forEach(function(n){io.observe(n)});
+
+try{
+var cv=document.getElementById('stage');
+var R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+var sc=new THREE.Scene();sc.background=new THREE.Color(0x141a28);sc.fog=new THREE.Fog(0x141a28,12,34);
+var cam=new THREE.PerspectiveCamera(50,1,.1,80);
+function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.85,flatShading:true})}
+function mesh(g,c,x,y,z,p){var m=new THREE.Mesh(g,mat(c));m.position.set(x,y,z);if(p)p.add(m);return m}
+var amb=new THREE.AmbientLight(0x6677aa,.55);sc.add(amb);
+var lamp=new THREE.PointLight(0x6f8fd0,1.2,30);lamp.position.set(0,5.2,-1);sc.add(lamp);
+var flash=new THREE.PointLight(0xffd9a0,1.3,9);sc.add(flash); /* свет, идущий за курсором */
+var ground=new THREE.Mesh(new THREE.CircleGeometry(40,48),mat(0x232b3d));ground.rotation.x=-Math.PI/2;sc.add(ground);
+mesh(new THREE.CylinderGeometry(.08,.12,5.2,8),0x3b4357,0,2.6,-1,sc);
+var bulb=new THREE.Mesh(new THREE.SphereGeometry(.28,16,16),new THREE.MeshBasicMaterial({color:0x8aa6e0}));bulb.position.set(0,5.3,-1);sc.add(bulb);
+/* луна и звёзды */
+var moon=new THREE.Mesh(new THREE.SphereGeometry(1.6,24,24),new THREE.MeshBasicMaterial({color:0xdfe6f5,fog:false}));moon.position.set(-9,11,-22);sc.add(moon);
+var SN=260,sp=new Float32Array(SN*3);for(var s=0;s<SN;s++){sp[s*3]=(Math.random()-.5)*70;sp[s*3+1]=6+Math.random()*22;sp[s*3+2]=-26-Math.random()*10}
+var sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+var stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.12,fog:false}));sc.add(stars);
+/* свалка: ящики, бочка, шины, коробка с розовым слонёнком */
+mesh(new THREE.BoxGeometry(1.6,1.2,1.4),0x5a4a3a,-8.4,.6,-1.6,sc);
+mesh(new THREE.BoxGeometry(1.2,1,1.2),0x6b5a45,-7.6,.5,-3,sc).rotation.y=.4;
+mesh(new THREE.BoxGeometry(1.1,.9,1.1),0x4d4033,-8.2,1.6,-1.6,sc).rotation.y=.7;
+mesh(new THREE.CylinderGeometry(.6,.6,1.5,10),0x3f5a63,-6.2,.75,-4,sc);
+var tire=new THREE.Mesh(new THREE.TorusGeometry(.7,.28,8,16),mat(0x1d2028));tire.position.set(-9.4,.3,.2);tire.rotation.x=Math.PI/2;sc.add(tire);
+var tire2=tire.clone();tire2.position.set(-9.2,.3,-1);sc.add(tire2);
+var bx=mesh(new THREE.BoxGeometry(1.3,.7,1),0x9b7a52,-6.6,.35,1.3,sc);
+var ele=mesh(new THREE.SphereGeometry(.25,10,10),0xf0a0c0,-6.6,.85,1.3,sc);
+mesh(new THREE.SphereGeometry(.17,10,10),0xf0a0c0,-6.35,.82,1.3,sc);
+/* котёнок */
+var cat=new THREE.Group();sc.add(cat);var CF=0xe0782f;
+var cb=mesh(new THREE.SphereGeometry(.55,14,12),CF,0,.5,0,cat);cb.scale.set(1,.85,1.25);
+var ch=new THREE.Group();ch.position.set(0,.95,.62);cat.add(ch);
+mesh(new THREE.SphereGeometry(.4,14,12),CF,0,0,0,ch);
+var ce1=mesh(new THREE.ConeGeometry(.14,.3,4),CF,-.22,.35,-.05,ch),ce2=mesh(new THREE.ConeGeometry(.14,.3,4),CF,.22,.35,-.05,ch);
+mesh(new THREE.SphereGeometry(.08,8,8),0xffffff,-.15,.05,.36,ch);mesh(new THREE.SphereGeometry(.08,8,8),0xffffff,.15,.05,.36,ch);
+mesh(new THREE.SphereGeometry(.045,8,8),0x111111,-.15,.05,.43,ch);mesh(new THREE.SphereGeometry(.045,8,8),0x111111,.15,.05,.43,ch);
+var tail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0,.5,-.6),new THREE.Vector3(0,.7,-1),new THREE.Vector3(0,1.2,-1.1),new THREE.Vector3(0,1.5,-.9)]),12,.07,6),mat(CF));cat.add(tail);
+cat.rotation.y=Math.PI/2;
+/* пёс */
+var dog=new THREE.Group();dog.position.set(3.2,0,0);sc.add(dog);var DF=0x56688a;
+var db=mesh(new THREE.SphereGeometry(1,16,12),DF,0,1,0,dog);db.scale.set(1.05,.9,1.5);
+var dh=new THREE.Group();dh.position.set(0,1.45,1.35);dog.add(dh);
+mesh(new THREE.SphereGeometry(.62,16,12),DF,0,0,0,dh);
+mesh(new THREE.BoxGeometry(.5,.36,.55),0x6a7da0,0,-.14,.5,dh);
+mesh(new THREE.SphereGeometry(.09,8,8),0x111111,0,-.05,.8,dh);
+mesh(new THREE.SphereGeometry(.1,8,8),0xffffff,-.24,.12,.5,dh);mesh(new THREE.SphereGeometry(.1,8,8),0xffffff,.24,.12,.5,dh);
+mesh(new THREE.SphereGeometry(.05,8,8),0x111111,-.24,.12,.59,dh);mesh(new THREE.SphereGeometry(.05,8,8),0x111111,.24,.12,.59,dh);
+var e1=mesh(new THREE.ConeGeometry(.2,.4,4),0x3e4d6b,-.42,.5,-.1,dh),e2=mesh(new THREE.ConeGeometry(.2,.4,4),0x3e4d6b,.42,.5,-.1,dh);e1.rotation.z=.5;e2.rotation.z=-.5;
+mesh(new THREE.CylinderGeometry(.14,.1,.9,6),DF,-.5,.1,-1.5,dog).rotation.x=.5;
+dog.rotation.y=-Math.PI/2;
+var links=[];for(var i=0;i<9;i++){var l=new THREE.Mesh(new THREE.TorusGeometry(.12,.035,6,10),mat(0x8d93a3));l.position.set(4.3+i*.22,.9-i*.08,0);l.rotation.y=i%2?0:Math.PI/2;sc.add(l);links.push(l)}
+mesh(new THREE.CylinderGeometry(.1,.1,1,6),0x6b5a45,6.5,.5,0,sc);
+/* пыль и светляки */
+var N=220,pa=new Float32Array(N*3);for(var j=0;j<N;j++){pa[j*3]=(Math.random()-.5)*24;pa[j*3+1]=Math.random()*8;pa[j*3+2]=(Math.random()-.5)*12-2}
+var pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pa,3));
+var dust=new THREE.Points(pg,new THREE.PointsMaterial({color:0xf0d9a0,size:.05,transparent:true,opacity:.6}));sc.add(dust);
+var FN=40,fa=new Float32Array(FN*3),fv=new Float32Array(FN*3);for(var f=0;f<FN;f++){fa[f*3]=(Math.random()-.5)*14;fa[f*3+1]=1+Math.random()*4;fa[f*3+2]=Math.random()*4}
+var fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.BufferAttribute(fa,3));
+var flies=new THREE.Points(fg,new THREE.PointsMaterial({color:0xffe28a,size:.16,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));sc.add(flies);
+var cA=new THREE.Color(0x6f8fd0),cB=new THREE.Color(0xffb84d),bA=new THREE.Color(0x8aa6e0),bB=new THREE.Color(0xffd27a),tmp=new THREE.Color();
+var p=0,tp=0,mx=0,my=0,tgt=new THREE.Vector3(),q0c,q0d,qa=new THREE.Quaternion();
+function size(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+function scroll(){var m=document.documentElement.scrollHeight-innerHeight;tp=m>0?scrollY/m:0;bar.style.width=(tp*100)+'%'}
+addEventListener('scroll',scroll,{passive:true});scroll();
+function follow(o,base,amt){o.quaternion.copy(base);o.lookAt(tgt);qa.copy(o.quaternion);o.quaternion.copy(base).slerp(qa,amt)}
+var t0=performance.now();
+function frame(){
+  var t=(performance.now()-t0)/1000;p+=(tp-p)*.06;
+  ox+=(mxp-ox)*.2;oy+=(myp-oy)*.2;orb.style.transform='translate('+ox+'px,'+oy+'px)';
+  mx=ox/innerWidth-.5;my=oy/innerHeight-.5;
+  var shift=innerWidth>900?2.6:0;
+  cat.position.x=-4.8+p*3.4;cat.position.y=Math.abs(Math.sin(t*3+p*10))*.08*(1-p*.6);cat.position.z=.5-p*.5;
+  tail.rotation.y=Math.sin(t*3)*.35;
+  db.scale.y=.9+Math.sin(t*1.6)*.02;
+  links.forEach(function(l,i){l.position.y=.9-i*.08+Math.sin(t*1.6+i)*.02});
+  tmp.copy(cA).lerp(cB,p);lamp.color.copy(tmp);lamp.intensity=1.2+p*2.2;
+  bulb.material.color.copy(bA).lerp(bB,p);amb.intensity=.55+p*.35;
+  tire.rotation.z=Math.sin(t*.5)*.05;moon.position.y=11+Math.sin(t*.3)*.15;stars.rotation.z=t*.002;
+  /* камера */
+  cam.position.set(-1-shift+p*1.2+mx*1.4,2.6+p*.6-my*.8,11-p*3.5);cam.lookAt(-.2-shift+p*.8,1.3,0);
+  cam.updateMatrixWorld();sc.updateMatrixWorld(true);
+  /* точка в мире под курсором: плоскость z=4 */
+  var v=new THREE.Vector3(mx*2,-my*2,.5).unproject(cam),dir=v.sub(cam.position).normalize(),k=(4-cam.position.z)/dir.z;
+  tgt.copy(cam.position).add(dir.multiplyScalar(k));
+  flash.position.set(tgt.x,tgt.y,tgt.z+1);
+  /* герои следят за курсором */
+  if(!q0c){q0c=ch.quaternion.clone();q0d=dh.quaternion.clone()}
+  follow(ch,q0c,.55);follow(dh,q0d,.45);
+  ce1.rotation.z=.25+Math.sin(t*2.1)*.12;ce2.rotation.z=-.25+Math.sin(t*2.6)*.12;
+  e1.rotation.z=.5+Math.sin(t*1.7)*.08;
+  /* светляки тянутся к курсору */
+  var fp=flies.geometry.attributes.position.array;
+  for(var f=0;f<FN;f++){var ix=f*3,dx=tgt.x-fp[ix],dy=tgt.y-fp[ix+1],dz=tgt.z-fp[ix+2],d=Math.hypot(dx,dy,dz)+.001;
+    var pull=d<7?.012:.0008;
+    fv[ix]=fv[ix]*.96+dx/d*pull+Math.sin(t*1.3+f)*.002;fv[ix+1]=fv[ix+1]*.96+dy/d*pull+Math.cos(t*1.1+f*2)*.002;fv[ix+2]=fv[ix+2]*.96+dz/d*pull;
+    fp[ix]+=fv[ix];fp[ix+1]+=fv[ix+1];fp[ix+2]+=fv[ix+2]}
+  flies.geometry.attributes.position.needsUpdate=true;
+  var da=dust.geometry.attributes.position;for(var q=0;q<N;q++){var y=da.array[q*3+1]-.004;if(y<0)y=8;da.array[q*3+1]=y;da.array[q*3]+=Math.sin(t+q)*.002}da.needsUpdate=true;
+  R.render(sc,cam);
+  if(!still)requestAnimationFrame(frame);
+}
+addEventListener('scroll',function(){if(still)frame()},{passive:true});
+frame();document.querySelector('.fallback').style.display='none';
+}catch(err){console.error('WebGL недоступен',err)}
+})();
+</script>
+</body>
+</html>
+
